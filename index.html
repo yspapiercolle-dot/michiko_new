@@ -60,6 +60,24 @@
             content: "✨";
             margin-left: 8px;
         }
+
+        .photo-frame {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            border: 4px solid white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            background-color: #fce4ec; /* 画像読み込み前の色 */
+        }
+        .photo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .photo-frame:hover img {
+            transform: scale(1.1);
+        }
     </style>
 </head>
 <body class="antialiased">
@@ -79,7 +97,6 @@
             </div>
         </div>
         
-        <!-- Animated Bubbles -->
         <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-[0]">
             <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none" class="relative block w-full h-[60px] fill-white">
                 <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V46.35C50.75,15.1,103.24,5.07,159.26,1.44c48-3.11,96.44,5.4,142.13,22.12c24.64,9,48.11,20.89,72.2,32.88Z" class="shape-fill"></path>
@@ -87,13 +104,12 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="max-w-5xl mx-auto px-6 -mt-16 pb-20">
         
-        <!-- Intro Card -->
+        <!-- Intro Card with Profile Photo (1.jpg) -->
         <div class="glass-card p-8 md:p-12 mb-16 text-center transform hover:scale-[1.02] transition-transform duration-300">
-            <div class="w-24 h-24 md:w-32 md:h-32 bg-pink-100 rounded-full mx-auto mb-6 flex items-center justify-center text-4xl shadow-inner border-4 border-white">
-                💅
+            <div class="w-32 h-32 md:w-40 md:h-40 mx-auto mb-6 photo-frame">
+                <img src="1.jpg" alt="MICHIKO" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&h=400&auto=format&fit=crop'">
             </div>
             <h2 class="text-3xl font-bold mb-4 text-pink-600 font-pacifico">About Me</h2>
             <p class="text-lg leading-loose font-medium">
@@ -102,13 +118,12 @@
             </p>
         </div>
 
-        <!-- Favorites Grid -->
         <section class="grid grid-cols-1 md:grid-cols-3 gap-8">
             
-            <!-- Favorite 1 -->
+            <!-- Favorite 1: デカ盛り (2.jpg) -->
             <div class="glass-card overflow-hidden group">
-                <div class="h-48 bg-orange-100 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-500">
-                    🍚
+                <div class="h-56 photo-frame border-none rounded-none">
+                    <img src="2.jpg" alt="デカ盛りグルメ" onerror="this.src='https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-extrabold mb-3 text-orange-600 emoji-sparkle">デカ盛りグルメ</h3>
@@ -119,10 +134,10 @@
                 </div>
             </div>
 
-            <!-- Favorite 2 -->
+            <!-- Favorite 2: ネイル (3.jpg) -->
             <div class="glass-card overflow-hidden group">
-                <div class="h-48 bg-pink-100 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-500">
-                    💅
+                <div class="h-56 photo-frame border-none rounded-none">
+                    <img src="3.jpg" alt="キラキラネイル" onerror="this.src='https://images.unsplash.com/photo-1604654894610-df63bc536371?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-extrabold mb-3 text-pink-600 emoji-sparkle">キラキラネイル</h3>
@@ -132,10 +147,10 @@
                 </div>
             </div>
 
-            <!-- Favorite 3 -->
+            <!-- Favorite 3: 夜景 (4.jpg) -->
             <div class="glass-card overflow-hidden group">
-                <div class="h-48 bg-blue-100 flex items-center justify-center text-6xl group-hover:scale-110 transition-transform duration-500">
-                    🌉
+                <div class="h-56 photo-frame border-none rounded-none">
+                    <img src="4.jpg" alt="レインボーブリッジの夜景" onerror="this.src='https://images.unsplash.com/photo-1549488344-1f9b8d2bd1f3?q=80&w=600&auto=format&fit=crop'">
                 </div>
                 <div class="p-6">
                     <h3 class="text-xl font-extrabold mb-3 text-blue-600 emoji-sparkle">レインボーブリッジの夜景</h3>
@@ -147,7 +162,6 @@
 
         </section>
 
-        <!-- Fun Quote Area -->
         <section class="mt-20 text-center">
             <div class="floating inline-block bg-white px-8 py-6 rounded-3xl shadow-xl border-2 border-pink-200">
                 <p class="text-2xl font-bold text-pink-500">
@@ -158,13 +172,11 @@
 
     </main>
 
-    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-12 text-center">
         <p class="font-pacifico text-2xl mb-4">MICHIKO's profile</p>
         <p class="text-gray-400 text-sm italic">Keep it sparkling and happy!</p>
     </footer>
 
-    <!-- Overlay Decorative Elements -->
     <div class="fixed top-20 right-10 pointer-events-none text-4xl opacity-20 floating" style="animation-delay: 1s">🍩</div>
     <div class="fixed bottom-20 left-10 pointer-events-none text-4xl opacity-20 floating" style="animation-delay: 2s">🌟</div>
     <div class="fixed top-1/2 left-5 pointer-events-none text-4xl opacity-20 floating">💖</div>
