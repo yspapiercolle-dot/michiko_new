@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MICHIKO's profile</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Italiana&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Three.js (Background Animation) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --primary-color: #333333;
+            --text-body: #444444;
+            --accent-pink: #ff8cb6;
+            --accent-blue: #70e8e0;
+            --accent-gold: #f0d550;
+            --bg-color: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(255, 255, 255, 1.0);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Zen Kaku Gothic New', sans-serif;
+            color: var(--primary-color);
+            overflow-x: hidden;
+            line-height: 1.8;
+        }
+
+        /* --- Loading Screen --- */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 9999;
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-logo {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 3rem;
+            color: var(--accent-pink);
+            margin-bottom: 1rem;
+        }
+
+        .loading-bar-container {
+            width: 200px;
+            height: 2px;
+            background: #eee;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-pink);
+            transition: width 0.3s;
+        }
+
+        /* --- Background Canvas --- */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* --- Layout --- */
+        .content-wrapper {
+            position: relative;
+            z-index: 1;
+        }
+
+        section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 100px 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* --- Typography --- */
+        .section-title {
+            font-family: 'Italiana', serif;
+            font-size: clamp(2.5rem, 6vw, 4rem);
+            margin-bottom: 3rem;
+            text-align: center;
+            background: linear-gradient(45deg, var(--accent-pink), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 30px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-family: 'Italiana', serif;
+            font-size: 1.1rem;
+            letter-spacing: 0.1em;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent-pink);
+        }
+
+        @media (max-width: 768px) {
+            nav { padding: 20px; }
+            .nav-links { display: none; }
+        }
+
+        /* --- Hero Section --- */
+        .hero {
+            text-align: center;
+            padding-top: 0;
+        }
+
+        .hero-title {
+            font-family: 'Italiana', serif;
+            font-size: clamp(4rem, 15vw, 10rem);
+            line-height: 0.9;
+            margin-bottom: 2rem;
+            color: var(--primary-color);
+        }
+
+        .hero-sub {
+            font-size: 1.2rem;
+            letter-spacing: 0.2em;
+            color: var(--text-body);
+            font-weight: 700;
+            margin-bottom: 3rem;
+        }
+
+        /* --- About Card --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 60px;
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 60px;
+            align-items: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease;
+        }
+
+        .glass-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .profile-img-placeholder {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: linear-gradient(135deg, #ffeef5, #eefbff);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .profile-name {
+            font-family: 'Italiana', serif;
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .profile-tagline {
+            display: block;
+            color: var(--accent-pink);
+            font-weight: 700;
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        @media (max-width: 900px) {
+            .glass-card {
+                grid-template-columns: 1fr;
+                padding: 40px;
+                gap: 40px;
+                text-align: center;
+            }
+        }
+
+        /* --- Favorites Section --- */
+        .fav-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .fav-item {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 25px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .fav-item.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .fav-item:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(255, 140, 182, 0.15);
+        }
+
+        .fav-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .fav-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .fav-text {
+            font-size: 0.95rem;
+            color: var(--text-body);
+            line-height: 1.8;
+        }
+
+        @media (max-width: 850px) {
+            .fav-grid { grid-template-columns: 1fr; }
+        }
+
+        /* --- Contact Form --- */
+        .contact-container {
+            max-width: 600px;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            padding: 50px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 1s ease;
+        }
+
+        .contact-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            display: block;
+            font-family: 'Italiana', serif;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            background: rgba(255,255,255,0.5);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-pink);
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(255, 140, 182, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(45deg, var(--accent-pink), #ffbedb);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-family: 'Italiana', serif;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            font-weight: 700;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(255, 140, 182, 0.3);
+        }
+
+        footer {
+            padding: 50px;
+            text-align: center;
+            font-family: 'Italiana', serif;
+            letter-spacing: 0.2em;
+            color: #999;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-logo">MICHIKO</div>
+        <div class="loading-bar-container">
+            <div class="loading-bar" id="loading-bar"></div>
+        </div>
+    </div>
+
+    <!-- Background Animation Canvas -->
+    <div id="canvas-container"></div>
+
+    <div class="content-wrapper">
+        <nav>
+            <a href="#" class="nav-logo">MICHIKO</a>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#favorites">Favorites</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div class="container">
+                <span class="hero-sub">Welcome to My World</span>
+                <h1 class="hero-title">MICHIKO's<br>profile</h1>
+                <p class="hero-sub">ハッピーもスイーツも🎵モリモリくらいがちょうどいい！✨</p>
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="container">
+                <h2 class="section-title">About Me</h2>
+                <div class="glass-card scroll-reveal">
+                    <div class="profile-img-placeholder">
+                        💅
+                    </div>
+                    <div class="profile-info">
+                        <h3 class="profile-name">MICHIKO</h3>
+                        <span class="profile-tagline">ハッピーもスイーツも🎵モリモリくらいがちょうどいい！✨</span>
+                        <p class="text-body">
+                            美味しいものを食べて、好きな景色を眺めて、自分らしく。
+                            日常のキラキラした瞬間を大切にしています。
+                            この場所を通して、私の大好きなものを皆さんに共有できたら嬉しいです！
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="favorites">
+            <div class="container">
+                <h2 class="section-title">My Favorites</h2>
+                <div class="fav-grid">
+                    <!-- Fav 1 -->
+                    <div class="fav-item scroll-reveal" style="transition-delay: 0.1s;">
+                        <span class="fav-icon">🍚</span>
+                        <h3 class="fav-title">デカ盛りグルメ</h3>
+                        <p class="fav-text">「美味しいものは、お腹いっぱい食べるのが正義！お台場の食べ歩きも、全制覇が基本です🍚」</p>
+                    </div>
+                    <!-- Fav 2 -->
+                    <div class="fav-item scroll-reveal" style="transition-delay: 0.2s;">
+                        <span class="fav-icon">💅</span>
+                        <h3 class="fav-title">キラキラネイル</h3>
+                        <p class="fav-text">「指先が可愛いと、スマホをいじってるだけでもテンションが爆上がりするんだよね💅」</p>
+                    </div>
+                    <!-- Fav 3 -->
+                    <div class="fav-item scroll-reveal" style="transition-delay: 0.3s;">
+                        <span class="fav-icon">🌉</span>
+                        <h3 class="fav-title">夜景</h3>
+                        <p class="fav-text">「どんなに悩みごとがあっても、このキラキラした景色を見ると、明日も自分らしくいこう！って思える大切な場所です🌉」</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact">
+            <div class="container" style="display:flex; flex-direction:column; align-items:center;">
+                <h2 class="section-title">Contact</h2>
+                <div class="contact-container scroll-reveal">
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label class="form-label">Name</label>
+                            <input type="text" name="name" class="form-input" placeholder="Your Name" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-input" placeholder="Your Email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea name="message" class="form-input" rows="5" placeholder="Say hello!" required></textarea>
+                        </div>
+                        <button type="submit" class="submit-btn" id="submitBtn">Send Message</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            &copy; 2026 MICHIKO. Crafted with Love.
+        </footer>
+    </div>
+
+    <script>
+        // --- 1. Background Fluid Simulation (Three.js) ---
+        let simMaterial, drawMaterial;
+        let renderer, scene, camera, targetA, targetB, simScene, drawScene;
+
+        function initFluid() {
+            const container = document.getElementById('canvas-container');
+            scene = new THREE.Scene();
+            camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            renderer = new THREE.WebGLRenderer({ antialias: false });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const size = new THREE.Vector2(window.innerWidth, window.innerHeight);
+            targetA = new THREE.WebGLRenderTarget(size.x, size.y, { type: THREE.FloatType });
+            targetB = targetA.clone();
+
+            const simFragment = `
+                uniform sampler2D u_buffer;
+                uniform vec2 u_resolution;
+                uniform vec2 u_mouse;
+                uniform float u_time;
+                uniform float u_is_moving;
+
+                void main() {
+                    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+                    vec2 mouse = u_mouse;
+                    float d = distance(uv * vec2(u_resolution.x/u_resolution.y, 1.0), mouse * vec2(u_resolution.x/u_resolution.y, 1.0));
+                    
+                    vec4 prev = texture2D(u_buffer, uv);
+                    
+                    // Fluid Color Logic (Pink, Blue, Gold mix)
+                    vec3 c1 = vec3(1.0, 0.55, 0.71); // Pink
+                    vec3 c2 = vec3(0.44, 0.91, 0.88); // Blue
+                    vec3 c3 = vec3(1.0, 0.84, 0.31); // Gold
+                    
+                    float t = u_time * 0.2;
+                    vec3 dynamicColor = mix(c1, c2, sin(t)*0.5+0.5);
+                    dynamicColor = mix(dynamicColor, c3, cos(t*0.7)*0.5+0.5);
+
+                    float force = smoothstep(0.1, 0.0, d) * u_is_moving;
+                    vec3 color = mix(prev.rgb * 0.98, dynamicColor, force * 0.2);
+                    
+                    gl_FragColor = vec4(color, 1.0);
+                }
+            `;
+
+            const drawFragment = `
+                uniform sampler2D u_texture;
+                uniform vec2 u_resolution;
+                void main() {
+                    vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+                    vec3 col = texture2D(u_texture, uv).rgb;
+                    // Add subtle brightness and white mix for "airy" feel
+                    gl_FragColor = vec4(mix(vec3(1.0), col, 0.4), 1.0);
+                }
+            `;
+
+            simMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    u_buffer: { value: null },
+                    u_resolution: { value: size },
+                    u_mouse: { value: new THREE.Vector2(0.5, 0.5) },
+                    u_time: { value: 0 },
+                    u_is_moving: { value: 0 }
+                },
+                vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
+                fragmentShader: simFragment
+            });
+
+            drawMaterial = new THREE.ShaderMaterial({
+                uniforms: { u_texture: { value: null }, u_resolution: { value: size } },
+                vertexShader: `void main() { gl_Position = vec4(position, 1.0); }`,
+                fragmentShader: drawFragment
+            });
+
+            const quad = new THREE.PlaneGeometry(2, 2);
+            simScene = new THREE.Scene(); simScene.add(new THREE.Mesh(quad, simMaterial));
+            drawScene = new THREE.Scene(); drawScene.add(new THREE.Mesh(quad, drawMaterial));
+
+            window.addEventListener('resize', () => {
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                targetA.setSize(window.innerWidth, window.innerHeight);
+                targetB.setSize(window.innerWidth, window.innerHeight);
+                simMaterial.uniforms.u_resolution.value.set(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        let mouse = new THREE.Vector2(0.5, 0.5);
+        let isMoving = 0;
+        let lastMoveTime = 0;
+
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX / window.innerWidth;
+            mouse.y = 1.0 - (e.clientY / window.innerHeight);
+            isMoving = 1;
+            lastMoveTime = Date.now();
+        });
+
+        function renderFluid(time) {
+            if (Date.now() - lastMoveTime > 100) isMoving *= 0.9;
+            simMaterial.uniforms.u_buffer.value = targetA.texture;
+            simMaterial.uniforms.u_mouse.value = mouse;
+            simMaterial.uniforms.u_time.value = time * 0.001;
+            simMaterial.uniforms.u_is_moving.value = isMoving;
+
+            renderer.setRenderTarget(targetB);
+            renderer.render(simScene, camera);
+            renderer.setRenderTarget(null);
+            drawMaterial.uniforms.u_texture.value = targetB.texture;
+            renderer.render(drawScene, camera);
+
+            let temp = targetA; targetA = targetB; targetB = temp;
+            requestAnimationFrame(renderFluid);
+        }
+
+        // --- 2. Loading and Reveal ---
+        window.addEventListener('DOMContentLoaded', () => {
+            initFluid();
+            requestAnimationFrame(renderFluid);
+
+            const bar = document.getElementById('loading-bar');
+            const screen = document.getElementById('loading-screen');
+            let progress = 0;
+
+            const interval = setInterval(() => {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        screen.classList.add('hidden');
+                        initScrollReveal();
+                    }, 500);
+                }
+                bar.style.width = progress + '%';
+            }, 100);
+        });
+
+        function initScrollReveal() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+        }
+
+        // --- 3. Contact Form Submission ---
+        const form = document.getElementById('contactForm');
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbzy2jF26_JXdrDUui8YlsiXc7xGLfRdiPTnya2FnyerFUuKIOXAO45rbqCdgEUV1F1fkg/exec';
+
+        form.addEventListener('submit', e => {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerText = 'Sending...';
+
+            fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+                .then(response => {
+                    alert('メッセージが送信されました！ありがとうございます。');
+                    btn.disabled = false;
+                    btn.innerText = 'Send Message';
+                    form.reset();
+                })
+                .catch(error => {
+                    alert('エラーが発生しました。時間をおいて再度お試しください。');
+                    btn.disabled = false;
+                    btn.innerText = 'Send Message';
+                });
+        });
+
+    </script>
+</body>
+</html>
